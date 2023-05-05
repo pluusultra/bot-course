@@ -35,7 +35,7 @@ const start = async () => {
   
     try {
       if (text === '/start') {
-        await UserModel.create({chatId})
+        await UserModel.sync({chatId})
         await bot.sendSticker(chatId,'https://tlgrm.eu/_/stickers/1b5/0ab/1b50abf8-8451-40ca-be37-ffd7aa74ec4d/2.webp');
         return bot.sendMessage(chatId, `Здравствуйте, сер`);
       }
@@ -50,29 +50,30 @@ const start = async () => {
     } catch (e) {
       return bot.sendMessage(chatId, 'Произошла какая-то то ошибка');
     }
+    });
 
- 
-  });
-};
 
 bot.on('callback_query', async msg => {
-  const data = msg.data;
-  const chatId = msg.message.chat.id;
-  if (data === '/again') {
-    return startGame(chatId);
-  }
+    const data = msg.data;
+    const chatId = msg.message.chat.id;
+    if (data === '/again') {
+      return startGame(chatId);
+    }
 
-  const user = await UserModel.findOne({chatId})
+    const user = await UserModel.findOne({chatId})
 
-  if (data == chats[chatId]) {
-    user.right =+ 1;
-    await bot.sendMessage(chatId, `Верно, это была цифра ${chats[chatId]}!`, againOptions)
-  } else {
-    user.wrong =+ 1;
-    await bot.sendMessage(chatId, `Ты не угадал, цифра была ${chats[chatId]}`, againOptions)
-  }
-  await user.save()
-})
+    if (data == chats[chatId]) {
+      user.right += 1;
+      await bot.sendMessage(chatId, `Верно, это была цифра ${chats[chatId]}!`, againOptions)
+    } else {
+      user.wrong += 1;
+      await bot.sendMessage(chatId, `Ты не угадал, цифра была ${chats[chatId]}`, againOptions)
+    }
+    await user.save();
+  })
+
+}
+
 
 start()
 
